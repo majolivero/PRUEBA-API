@@ -3,8 +3,6 @@ const app = express();
 let request = require("request");
 const port = 3000;
 const path = require("path");
-let $= require("jquery");
-
 
 /*function obtenerPersonas() {
   const datos_ejemplo = {
