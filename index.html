@@ -22,7 +22,15 @@
 <script>
   $(document).ready(function(){
     $("#btnCantidad").click(function(){
-      alert("The paragraph was clicked.");
+      let valor = $("#txtCantidad").val();
+
+      $.ajax({
+        url: `/obtener/${valor}`
+        }).then(function(data) {
+          for (let i = 0; i < data.length - 1; i++) {
+            console.log(data[i]);
+          }
+    });
     });
 
   });
