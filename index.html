@@ -1,41 +1,58 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Prueba API</title>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <title>Prueba API</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 </head>
+
 <body>
   <input type="text" id="txtCantidad" value="0" />
-  <br/>
+  <br />
   <input type="button" id="btnCantidad" value="obtener" />
-  <br/>
-
-  <table id="tblPersonas">
-
+  <br />
+  <table style="margin-top:25px;" id="tblPersonas">
+    <tbody>
+    </tbody>
   </table>
-
-
+  <br />
+  <input type="button" id="btnEnviar" value="enviar y obtener" hidden />
 
 </body>
+
 </html>
 
 <script>
-  $(document).ready(function(){
-    $("#btnCantidad").click(function(){
-      let valor = $("#txtCantidad").val();
+  $(document).ready(function () {
+    let personaArray;
+    let valor;
+
+    $("#btnCantidad").click(function () {
+      limpiarTabla();
+      valor = $("#txtCantidad").val();
 
       $.ajax({
         url: `/obtener/${valor}`
-        }).then(function(data) {
-          for (let i = 0; i < data.length - 1; i++) {
-            console.log(data[i]);
-          }
-    });
+      }).then(function (data) {
+        escribirEnTabla(data);
+      });
     });
 
+    function limpiarTabla() {
+      $("#tblPersonas > tbody").empty();
+    }
+
+    function escribirEnTabla(data) {
+      $("#tblPersonas > tbody:last-child").append(`<tr><td colspan="3">Tabla de Personas</td></tr>`);
+      $("#tblPersonas > tbody:last-child").append(`<tr><td>Nombre</td><td>Telefono</td><td>Correo</td></tr>`);
+      for (let i = 0; i < data.length - 1; i++) {
+        personaArray = data[i].split(',');
+        $("#tblPersonas > tbody:last-child").append(`<tr><td>${personaArray[0]}</td><td>${personaArray[1]}</td><td>${personaArray[2]}</td></tr>`);
+      }
+    }
+
+    $("#btnEnviar").click(function () {
+
+    });
   });
-
 </script>
-
-
-
