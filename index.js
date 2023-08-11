@@ -26,7 +26,11 @@ app.get("/ejemplo/:amount",(request, response) => {
 app.post("/enviar", async (request, response) => {
   let person = {name: request.body.name, email: request.body.email, phone: request.body.phone};
   console.log(JSON.stringify(person));
-  answer = (await sendPerson(person)).status
+  let answer = "0";
+  while (answer != "200")
+  {
+    answer = (await sendPerson(person)).status
+  }
   console.log("status: " + answer);
   response.json({success: answer});
 });
