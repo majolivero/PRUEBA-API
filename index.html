@@ -50,9 +50,10 @@
     });
 
     $("#btnEnviar").click(async function () {
-      $("#lblProceso").text("Enviando datos");
+      let restantes = personaArray.length - 2;
       for (let i = 0; i < personaArray.length - 1; i++) {
         await setTimeout(function () {
+        $("#lblProceso").text("Enviando datos (restantes "+ (restantes--).toString() +")");
         let persona = personaArray[i].split(',');
         persona[1] = completarTelefono(persona[1]);
         let personaJson = { name: persona[0], email : persona[2], phone: `${persona[1].substring(0,3)}-${persona[1].substring(3,6)}-${persona[1].substring(6,10)}`.trim()}
@@ -87,20 +88,22 @@
 
     //#region escribirTablas
     function escribirEnTabla(data) {
-      $("#tblPersonas > tbody:last-child").append(`<tr><td colspan="3">Tabla de Personas de ejemplo</td></tr>`);
-      $("#tblPersonas > tbody:last-child").append(`<tr><td>Nombre</td><td>Telefono</td><td>Correo</td></tr>`);
+      $("#tblPersonas > tbody:last-child").append(`<tr><td colspan="4">Tabla de Personas de ejemplo</td></tr>`);
+      $("#tblPersonas > tbody:last-child").append(`<tr><td></td><td>Nombre</td><td>Telefono</td><td>Correo</td></tr>`);
       for (let i = 0; i < data.length - 1; i++) {
         let persona = data[i].split(',');
-        $("#tblPersonas > tbody:last-child").append(`<tr><td>${persona[0]}</td><td>${persona[1]}</td><td>${persona[2]}</td></tr>`);
+        $("#tblPersonas > tbody:last-child").append(`<tr><td>${(i+1).toString()}</td><td>${persona[0]}</td><td>${persona[1]}</td><td>${persona[2]}</td></tr>`);
       }
       $('#btnEnviar').removeAttr('hidden');
     }
 
     function escribirEnTablaDescargadas(data) {
-      $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td colspan="3">Tabla de Personas descargadas</td></tr>`);
-      $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td>Nombre</td><td>Telefono</td><td>Correo</td></tr>`);
+      $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td colspan="4">Tabla de Personas descargadas</td></tr>`);
+      $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td></td><td>Nombre</td><td>Telefono</td><td>Correo</td></tr>`);
+      let columna = 1;
       for (let i in JSON.parse(data).items) {
-        $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td>${JSON.parse(data).items[i].name}</td><td>${JSON.parse(data).items[i].phone}</td><td>${JSON.parse(data).items[i].email}</td></tr>`);
+        $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td>${columna.toString()}</td><td>${JSON.parse(data).items[i].name}</td><td>${JSON.parse(data).items[i].phone}</td><td>${JSON.parse(data).items[i].email}</td></tr>`);
+        columna++;
       }
       $('#btnEnviar').removeAttr('hidden');
     }
