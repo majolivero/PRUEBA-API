@@ -33,55 +33,28 @@
     let personaArray;
     let valor;
 
+    //#region funcionesBotones
     $("#btnCantidad").click(function () {
-      $('#btnRecibir').attr('hidden', true);
-      $("#lblProceso").text("");
+      mostrarBtnEnviar();
+      mostrarBtnRecibir();
+      limpiarLblProceso();
       limpiarTabla();
-      valor = $("#txtCantidad").val();
+      limpiarTablaDescargadas();
 
       $.ajax({
-        url: `/ejemplo/${valor}`
+        url: `/ejemplo/${$("#txtCantidad").val()}`
       }).then(function (data) {
+        personaArray = data;
         escribirEnTabla(data);
       });
     });
-
-    function limpiarTabla() {
-      $("#tblPersonas > tbody").empty();
-    }
-
-    function escribirEnTabla(data) {
-      $("#tblPersonas > tbody:last-child").append(`<tr><td colspan="3">Tabla de Personas de ejemplo</td></tr>`);
-      $("#tblPersonas > tbody:last-child").append(`<tr><td>Nombre</td><td>Telefono</td><td>Correo</td></tr>`);
-      for (let i = 0; i < data.length - 1; i++) {
-        let persona = data[i].split(',');
-        $("#tblPersonas > tbody:last-child").append(`<tr><td>${persona[0]}</td><td>${persona[1]}</td><td>${persona[2]}</td></tr>`);
-      }
-      $('#btnEnviar').removeAttr('hidden');
-    }
-
-    function escribirEnTablaDescargadas(data) {
-      $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td colspan="3">Tabla de Personas descargadas</td></tr>`);
-      $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td>Nombre</td><td>Telefono</td><td>Correo</td></tr>`);
-      for (let i in JSON.parse(data).items) {
-        $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td>${JSON.parse(data).items[i].name}</td><td>${JSON.parse(data).items[i].phone}</td><td>${JSON.parse(data).items[i].email}</td></tr>`);
-      }
-      $('#btnEnviar').removeAttr('hidden');
-    }
 
     $("#btnEnviar").click(async function () {
       $("#lblProceso").text("Enviando datos");
       for (let i = 0; i < personaArray.length - 1; i++) {
         await setTimeout(function () {
         let persona = personaArray[i].split(',');
-        console.log("lenght de persona: " + persona[1].length);
-        if(persona[1].length == 8){
-          persona[1] = persona[1] + "00";
-        }
-        else if(persona[1].length == 9){
-          persona[1] = persona[1] + "0";
-        }
-
+        persona[1] = completarTelefono(persona[1]);
         let personaJson = { name: persona[0], email : persona[2], phone: `${persona[1].substring(0,3)}-${persona[1].substring(3,6)}-${persona[1].substring(6,10)}`.trim()}
 
         $.ajax({
@@ -103,11 +76,67 @@
     });
 
     $("#btnRecibir").click(function (){
+      limpiarTablaDescargadas();
       $.ajax({
         url: `/descargar`
       }).then(function (data) {
         escribirEnTablaDescargadas(data);
       });
     });
+    //#endregion funcionesBotones
+
+    //#region escribirTablas
+    function escribirEnTabla(data) {
+      $("#tblPersonas > tbody:last-child").append(`<tr><td colspan="3">Tabla de Personas de ejemplo</td></tr>`);
+      $("#tblPersonas > tbody:last-child").append(`<tr><td>Nombre</td><td>Telefono</td><td>Correo</td></tr>`);
+      for (let i = 0; i < data.length - 1; i++) {
+        let persona = data[i].split(',');
+        $("#tblPersonas > tbody:last-child").append(`<tr><td>${persona[0]}</td><td>${persona[1]}</td><td>${persona[2]}</td></tr>`);
+      }
+      $('#btnEnviar').removeAttr('hidden');
+    }
+
+    function escribirEnTablaDescargadas(data) {
+      $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td colspan="3">Tabla de Personas descargadas</td></tr>`);
+      $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td>Nombre</td><td>Telefono</td><td>Correo</td></tr>`);
+      for (let i in JSON.parse(data).items) {
+        $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td>${JSON.parse(data).items[i].name}</td><td>${JSON.parse(data).items[i].phone}</td><td>${JSON.parse(data).items[i].email}</td></tr>`);
+      }
+      $('#btnEnviar').removeAttr('hidden');
+    }
+    //#endregion escribirTablas
+
+    //#region funcionesElementos
+    function limpiarLblProceso() {
+      $("#lblProceso").text("");
+    }
+
+    function mostrarBtnEnviar() {
+      $('#btnEnviar').attr('hidden', true);
+    }
+
+    function mostrarBtnRecibir() {
+      $('#btnRecibir').attr('hidden', true);
+    }
+
+    function limpiarTabla() {
+      $("#tblPersonas > tbody").empty();
+    }
+
+    function limpiarTablaDescargadas() {
+      $("#tblPersonasDescargadas > tbody").empty();
+    }
+
+    function completarTelefono(persona) {
+      if(persona.length == 8){
+          persona = persona + "00";
+        }
+        else if(persona.length == 9){
+          persona = persona + "0";
+        }
+
+      return persona;
+    }
   });
+  //#endregion funcionesElementos
 </script>

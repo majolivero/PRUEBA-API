@@ -23,23 +23,13 @@ app.get("/ejemplo/:amount",(request, response) => {
   });
 });
 
-app.post("/enviar", (request, response) => {
-    let res = responseText(request);
-    response.json({success: res, status: 200});
-});
-
-async function responseText(request) {
+app.post("/enviar", async (request, response) => {
   let person = {name: request.body.name, email: request.body.email, phone: request.body.phone};
   console.log(JSON.stringify(person));
-  const res = await fetch("https://8j5baasof2.execute-api.us-west-2.amazonaws.com/production/tests/trucode/items", {
-    method: "POST",
-    headers: {'Content-Type' : 'application/json'},
-    body: JSON.stringify(person)
-  });
-  console.log("status: " + res.status);
-  await res;
-  return res.status
-}
+  answer = (await sendPerson(person)).status
+  console.log("status: " + answer);
+  response.json({success: answer});
+});
 
 app.get("/descargar", (request, response) => {
   https.get(`https://8j5baasof2.execute-api.us-west-2.amazonaws.com/production/tests/trucode/items`, (res) => {
@@ -54,8 +44,15 @@ app.get("/descargar", (request, response) => {
   });
 });
 
-
-
 app.listen(port,() => {
   console.log("Mi port" + 3000);
 });
+
+async function sendPerson(person){
+  const res = await fetch("https://8j5baasof2.execute-api.us-west-2.amazonaws.com/production/tests/trucode/items", {
+    method: "POST",
+    headers: {'Content-Type' : 'application/json'},
+    body: JSON.stringify(person)
+  });
+  return await res;
+}
