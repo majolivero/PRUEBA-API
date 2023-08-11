@@ -16,8 +16,14 @@
     </tbody>
   </table>
   <br />
-  <input type="button" id="btnEnviar" value="enviar y obtener" hidden />
-
+  <input type="button" id="btnEnviar" value="enviar" hidden /> <label id="lblProceso"></label>
+  <br />
+  <input type="button" id="btnRecibir" value="recibir" hidden/>
+  <br />
+  <table style="margin-top:25px;" id="tblPersonasDescargadas">
+    <tbody>
+    </tbody>
+  </table>
 </body>
 
 </html>
@@ -28,11 +34,13 @@
     let valor;
 
     $("#btnCantidad").click(function () {
+      $('#btnRecibir').attr('hidden', true);
+      $("#lblProceso").text("");
       limpiarTabla();
       valor = $("#txtCantidad").val();
 
       $.ajax({
-        url: `/obtener/${valor}`
+        url: `/ejemplo/${valor}`
       }).then(function (data) {
         escribirEnTabla(data);
       });
@@ -43,16 +51,63 @@
     }
 
     function escribirEnTabla(data) {
-      $("#tblPersonas > tbody:last-child").append(`<tr><td colspan="3">Tabla de Personas</td></tr>`);
+      $("#tblPersonas > tbody:last-child").append(`<tr><td colspan="3">Tabla de Personas de ejemplo</td></tr>`);
       $("#tblPersonas > tbody:last-child").append(`<tr><td>Nombre</td><td>Telefono</td><td>Correo</td></tr>`);
       for (let i = 0; i < data.length - 1; i++) {
-        personaArray = data[i].split(',');
-        $("#tblPersonas > tbody:last-child").append(`<tr><td>${personaArray[0]}</td><td>${personaArray[1]}</td><td>${personaArray[2]}</td></tr>`);
+        let persona = data[i].split(',');
+        $("#tblPersonas > tbody:last-child").append(`<tr><td>${persona[0]}</td><td>${persona[1]}</td><td>${persona[2]}</td></tr>`);
       }
+      $('#btnEnviar').removeAttr('hidden');
     }
 
-    $("#btnEnviar").click(function () {
+    function escribirEnTablaDescargadas(data) {
+      $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td colspan="3">Tabla de Personas descargadas</td></tr>`);
+      $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td>Nombre</td><td>Telefono</td><td>Correo</td></tr>`);
+      for (let i in JSON.parse(data).items) {
+        $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td>${JSON.parse(data).items[i].name}</td><td>${JSON.parse(data).items[i].phone}</td><td>${JSON.parse(data).items[i].email}</td></tr>`);
+      }
+      $('#btnEnviar').removeAttr('hidden');
+    }
 
+    $("#btnEnviar").click(async function () {
+      $("#lblProceso").text("Enviando datos");
+      for (let i = 0; i < personaArray.length - 1; i++) {
+        await setTimeout(function () {
+        let persona = personaArray[i].split(',');
+        console.log("lenght de persona: " + persona[1].length);
+        if(persona[1].length == 8){
+          persona[1] = persona[1] + "00";
+        }
+        else if(persona[1].length == 9){
+          persona[1] = persona[1] + "0";
+        }
+
+        let personaJson = { name: persona[0], email : persona[2], phone: `${persona[1].substring(0,3)}-${persona[1].substring(3,6)}-${persona[1].substring(6,10)}`.trim()}
+
+        $.ajax({
+          type: "POST",
+          url: "/enviar",
+          data: JSON.stringify(personaJson),
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          success: function(data){
+          }
+        });
+        if (i == personaArray.length - 2)
+        {
+          $("#lblProceso").text("datos enviados");
+          $('#btnRecibir').removeAttr('hidden');
+        }
+      }, 2000 * i);
+    }
+    });
+
+    $("#btnRecibir").click(function (){
+      $.ajax({
+        url: `/descargar`
+      }).then(function (data) {
+        escribirEnTablaDescargadas(data);
+      });
     });
   });
 </script>
