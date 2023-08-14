@@ -6,15 +6,16 @@ const https = require('https');
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 
+//Se encarga de cargar el archivo html con todos sus elementos y scripts
 app.get("/",(request, response) => {
   response.sendFile(path.resolve(__dirname, 'index.html'));
 });
 
-app.get("/ejemplo/:amount",(request, response) => {
-  https.get(`https://8j5baasof2.execute-api.us-west-2.amazonaws.com/production/tests/trucode/samples?size=${request.params.amount}`, (res) => {
+app.get("/ejemplo/:cantidad",(request, response) => {
+  https.get(`https://8j5baasof2.execute-api.us-west-2.amazonaws.com/production/tests/trucode/samples?size=${request.params.cantidad}`, (res) => {
     let data = '';
-    res.on('data', (chunk) =>{
-      data += chunk;
+    res.on('data', (result) =>{
+      data += result;
     });
 
     res.on('end', () => {
@@ -26,13 +27,13 @@ app.get("/ejemplo/:amount",(request, response) => {
 app.post("/enviar", async (request, response) => {
   let person = {name: request.body.name, email: request.body.email, phone: request.body.phone};
   console.log(JSON.stringify(person));
-  let answer = "0";
-  while (answer != "200")
+  let status = "0";
+  while (status != "200")
   {
-    answer = (await sendPerson(person)).status
+    status = await sendPerson(person)
   }
-  console.log("status: " + answer);
-  response.json({success: answer});
+  console.log("status: " + status);
+  response.json({success: status});
 });
 
 app.get("/descargar", (request, response) => {
@@ -58,5 +59,5 @@ async function sendPerson(person){
     headers: {'Content-Type' : 'application/json'},
     body: JSON.stringify(person)
   });
-  return await res;
+  return await res.status;
 }

@@ -9,7 +9,7 @@
 <body>
   <input type="text" id="txtCantidad" value="0" />
   <br />
-  <input type="button" id="btnCantidad" value="obtener" />
+  <input type="button" id="btnObtener" value="obtener" />
   <br />
   <table style="margin-top:25px;" id="tblPersonas">
     <tbody>
@@ -34,19 +34,24 @@
     let valor;
 
     //#region funcionesBotones
-    $("#btnCantidad").click(function () {
-      mostrarBtnEnviar();
-      mostrarBtnRecibir();
+    $("#btnObtener").click(function () {
+      ocultarBtnEnviar();
+      ocultarBtnRecibir();
       limpiarLblProceso();
       limpiarTabla();
       limpiarTablaDescargadas();
+      let cantidad = $("#txtCantidad").val();
 
+      if (parseInt(cantidad) > 0 && parseInt(cantidad) <= 100){
       $.ajax({
-        url: `/ejemplo/${$("#txtCantidad").val()}`
+        url: `/ejemplo/${cantidad}`
       }).then(function (data) {
         personaArray = data;
         escribirEnTabla(data);
       });
+    }else {
+      alert('El valor de la cantidad tiene que ser un numero entre 0 y 100');
+    }
     });
 
     $("#btnEnviar").click(async function () {
@@ -67,10 +72,11 @@
           success: function(data){
           }
         });
+        //si la iteración del ciclo es la ultima entra al if
         if (i == personaArray.length - 2)
         {
           $("#lblProceso").text("datos enviados");
-          $('#btnRecibir').removeAttr('hidden');
+          mostrarBtnRecibir();
         }
       }, 2000 * i);
     }
@@ -94,7 +100,7 @@
         let persona = data[i].split(',');
         $("#tblPersonas > tbody:last-child").append(`<tr><td>${(i+1).toString()}</td><td>${persona[0]}</td><td>${persona[1]}</td><td>${persona[2]}</td></tr>`);
       }
-      $('#btnEnviar').removeAttr('hidden');
+      mostrarBtnEnviar();
     }
 
     function escribirEnTablaDescargadas(data) {
@@ -105,7 +111,6 @@
         $("#tblPersonasDescargadas > tbody:last-child").append(`<tr><td>${columna.toString()}</td><td>${JSON.parse(data).items[i].name}</td><td>${JSON.parse(data).items[i].phone}</td><td>${JSON.parse(data).items[i].email}</td></tr>`);
         columna++;
       }
-      $('#btnEnviar').removeAttr('hidden');
     }
     //#endregion escribirTablas
 
@@ -114,12 +119,20 @@
       $("#lblProceso").text("");
     }
 
-    function mostrarBtnEnviar() {
+    function ocultarBtnEnviar() {
       $('#btnEnviar').attr('hidden', true);
     }
 
-    function mostrarBtnRecibir() {
+    function ocultarBtnRecibir() {
       $('#btnRecibir').attr('hidden', true);
+    }
+
+    function mostrarBtnEnviar() {
+      $('#btnEnviar').removeAttr('hidden');
+    }
+
+    function mostrarBtnRecibir() {
+      $('#btnRecibir').removeAttr('hidden');
     }
 
     function limpiarTabla() {
